@@ -65,7 +65,6 @@ export default {
   },
   methods: {
     onChange(event) {
-      console.log("Sort", event.target.value, this.productItems);
       let sortType = event.target.value === "Comments" ? "comments" : "likes";
       if (this.sortBy !== sortType) {
         this.sort(sortType);
@@ -73,9 +72,15 @@ export default {
     },
     sort(sortType) {
       this.sortBy = sortType;
-      return this.productItems.sort((a, b) => {
+      if(this.tagsArray.length < 1) {
+        return this.productItems.sort((a, b) => {
         return b[sortType] - a[sortType];
-      });
+      })
+      } else {
+      return this.tagsArray.sort((a, b) => {
+        return b[sortType] - a[sortType];
+      })
+      }
     },
     debounce(fn, delay) {
       var timeoutID = null;
@@ -92,26 +97,12 @@ export default {
       const searchTag = event.target.value;
       let filterMassive = [...this.productItems];
       filterMassive = this.productItems.filter((el) => {
-        let tags = el.tags.split(",").map(item => item.trim());
-        console.log(
-          "Search start",
-          event.target.value,
-          filterMassive,
-          searchTag,
-          tags,
-          tags.includes(searchTag)
-        );
+        let tags = el.tags.split(",").map(item => item.trim());        
         if (tags.includes(searchTag)) {
           return el;
         }
       });
-      this.tagsArray = filterMassive;
-      console.log(
-        "Search end",
-        event.target.value,
-        filterMassive,
-        this.productItems
-      );
+      this.tagsArray = filterMassive;    
     },
   },
   computed: {
@@ -119,6 +110,7 @@ export default {
   },
   created() {
     this.$store.dispatch("getProductItems");
+    this.tagsArray = [];
   },
   components: {
     ProductListItem,
